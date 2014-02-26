@@ -1,0 +1,7 @@
+.vagrant
+build/*
+dist/*
+image/boot/*
+log/*
+
+cross/*
