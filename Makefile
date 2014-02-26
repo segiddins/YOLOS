@@ -12,6 +12,9 @@ OBJS = $(subst .c,.o,$(subst src/,build/,$(CFILES)))
 
 .PHONY: clean qemu bochs all dist cross
 
+qemu: image/boot/jdsos.bin
+	qemu-system-i386 -kernel image/boot/jdsos.bin -serial file:log/qemu.log
+
 $(BINUTILS_SRC):
 	cd $(CROSSDIR) && \
 	wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.22.tar.gz && \
@@ -57,9 +60,6 @@ all: dist
 
 bochs: dist/jdsos.iso
 	bochs -f .bochsrc
-
-qemu: image/boot/jdsos.bin
-	qemu-system-i386 -kernel image/boot/jdsos.bin -serial file:log/qemu.log
 
 clean:
 	rm -rf $(BINUTILS_BUILD) $(GCC_BUILD) build/* dist/* image/boot/*.bin
