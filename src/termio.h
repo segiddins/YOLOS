@@ -6,7 +6,7 @@
 
 void terminal_initialize();
 
-void logf(char *format, ...);
-int printf(char *format, ...);
+void logf(const char *format, ...);
+int printf(const char *format, ...);
 
 #endif

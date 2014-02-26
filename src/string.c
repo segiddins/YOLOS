@@ -34,10 +34,13 @@ int strcmp(const char *str1, const char *str2)
     return memcmp(str1, str2, len1);
 }
 
-// int memcpy(void *in, void *out, size_t length)
-// {
-//     for (int i = 0; i < length; ++i)
-//     {
-//         out[i] = in[i];
-//     }
-// }
+int memcpy(void *in, void *out, size_t length)
+{
+    char* inc = in;
+    char* outc = out;
+    for (unsigned int i = 0; i < length; ++i)
+    {
+        outc[i] = inc[i];
+    }
+    return 0;
+}

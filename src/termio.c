@@ -61,6 +61,8 @@ void init_serial(uint16_t port) {
    outb(port + 4, 0x0B);    // IRQs enabled, RTS/DSR set
 }
 
+void terminal_putentryat(char c, uint8_t color, size_t x, size_t y);
+
 void terminal_initialize()
 {
     init_serial(COM);
@@ -71,8 +73,7 @@ void terminal_initialize()
     {
         for ( size_t x = 0; x < VGA_WIDTH; x++ )
         {
-            const size_t index = y * VGA_WIDTH + x;
-            terminal_buffer[index] = make_vga_entry(' ', terminal_color);
+            terminal_putentryat(' ', terminal_color, x, y);
         }
     }
 }
@@ -88,28 +89,40 @@ void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)
     terminal_buffer[index] = make_vga_entry(c, color);
 }
 
+void terminal_new_row()
+{
+    if (++terminal_row >= VGA_HEIGHT)
+    {
+        int bytes_to_copy = (VGA_HEIGHT - 1) * VGA_WIDTH;
+        for (int i = 0; i < bytes_to_copy; ++i)
+        {
+            terminal_buffer[i] = terminal_buffer[i+VGA_WIDTH];
+        }
+        terminal_row = VGA_HEIGHT - 1;
+        for (unsigned int i = 0; i < VGA_WIDTH; ++i)
+        {
+            terminal_putentryat(' ', terminal_color, i, terminal_row);
+        }
+    }
+}
+
 void terminal_putchar(char c)
 {
     if (!c) return;
     if (c == '\n') {
         terminal_column = 0;
-        terminal_row++;
+        terminal_new_row();
     } else if (c == '\t') {
-        terminal_column += 4;
-        if (terminal_column >= VGA_WIDTH)
+        for (int i = 0; i < 4; ++i)
         {
-            terminal_column -= VGA_WIDTH;
-            terminal_row++;
+            terminal_putchar(' ');
         }
     } else {
         terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
         if ( ++terminal_column == VGA_WIDTH )
         {
             terminal_column = 0;
-            if ( ++terminal_row == VGA_HEIGHT )
-            {
-                terminal_row = 0;
-            }
+            terminal_new_row();
         }
     }
 }
@@ -141,7 +154,7 @@ char* itoa(int i, char b[]){
     return b;
 }
 
-int printf(char *format, ...)
+int printf(const char *format, ...)
 {
     size_t len = strlen(format);
     char buffer[33];
@@ -206,7 +219,7 @@ void log_string(char *string)
     }
 }
 
-void logf(char *format, ...)
+void logf(const char *format, ...)
 {
     size_t len = strlen(format);
     char buffer[33];
