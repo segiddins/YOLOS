@@ -134,79 +134,15 @@ void terminal_writestring(const char* data)
         terminal_putchar(data[i]);
 }
 
-char* itoa(int i, char b[]){
-    char const digit[] = "0123456789";
-    char* p = b;
-    if(i<0){
-        *p++ = '-';
-        i *= -1;
-    }
-    int shifter = i;
-    do{ //Move to where representation ends
-        ++p;
-        shifter = shifter/10;
-    }while(shifter);
-    *p = '\0';
-    do{ //Move back, inserting digits as u go
-        *--p = digit[i%10];
-        i = i/10;
-    }while(i);
-    return b;
-}
-
 int printf(const char *format, ...)
 {
-    size_t len = strlen(format);
-    char buffer[33];
+    char *output = NULL;
     va_list list;
     va_start(list, format);
-    for (unsigned int i = 0; i < len; i++)
-    {
-        char c = format[i];
-        if (c != '%') {
-            terminal_putchar(c);
-        } else {
-            c = format[++i];
-            switch (c) {
-                case 'd':
-                case 'i':
-                {
-                    int num = va_arg(list, int);
-                    terminal_writestring(itoa(num, buffer));
-                    break;
-                }
-
-                case 'c':
-                {
-                    c = va_arg(list, int);
-                    terminal_putchar(c);
-                    break;
-                }
-
-                case 's':
-                {
-                    char *string = va_arg(list, char *);
-                    terminal_writestring(string);
-                    break;
-                }
-
-                case 'f':
-                {
-                    double num = va_arg(list, double);
-                    terminal_writestring(itoa((int)num, buffer));
-                    break;
-                }
-
-                default:
-                {
-                    printf("('%c' format specifier undefined in %s)", c, __PRETTY_FUNCTION__);
-                    break;
-                }
-            }
-        }
-    }
+    int retval = vstrf(&output, format, list);
     va_end(list);
-    return 0;
+    terminal_writestring(output);
+    return retval;
 }
 
 void log_string(char *string)
@@ -214,48 +150,16 @@ void log_string(char *string)
     size_t len = strlen(string);
     for (unsigned int i = 0; i < len; ++i)
     {
-        /* code */
         outb(COM, string[i]);
     }
 }
 
 void logf(const char *format, ...)
 {
-    size_t len = strlen(format);
-    char buffer[33];
+    char *output = NULL;
     va_list list;
     va_start(list, format);
-    for (unsigned int i = 0; i < len; i++)
-    {
-        char c = format[i];
-        if (c != '%') {
-            outb(COM, c);
-        } else {
-            c = format[++i];
-            switch (c) {
-                case 'd':
-                case 'i':
-                {
-                    int num = va_arg(list, int);
-                    log_string(itoa(num, buffer));
-                    break;
-                }
-
-                case 'c':
-                {
-                    c = va_arg(list, int);
-                    outb(COM, c);
-                    break;
-                }
-
-                case 's':
-                {
-                    char *string = va_arg(list, char *);
-                    log_string(string);
-                    break;
-                }
-            }
-        }
-    }
+    vstrf(&output, format, list);
     va_end(list);
+    log_string(output);
 }
