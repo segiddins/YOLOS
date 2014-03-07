@@ -190,3 +190,13 @@ int vstrf(char **out, const char *format, va_list fargs)
     *out = string;
     return 0;
 }
+
+void *memset(void *ptr, int value, size_t len)
+{
+  char *int_array = (char *)ptr;
+  for (unsigned int i = 0; i < len; i++) {
+    int_array[i] = value;
+  }
+  return ptr;
+}
+

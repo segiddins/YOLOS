@@ -39,3 +39,4 @@ _start:
 .hang:
 	hlt
 	jmp .hang
+

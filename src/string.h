@@ -13,6 +13,8 @@ int strcmp(const char *str1, const char *str2);
 
 int memcpy(void *in, void *out, size_t length);
 
+void *memset(void *ptr, int value, size_t len);
+
 int strf(char **out, const char *format, ...);
 int vstrf(char **out, const char *format, va_list fargs);
 

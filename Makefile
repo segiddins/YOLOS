@@ -63,3 +63,4 @@ bochs: dist/jdsos.iso
 
 clean:
 	rm -rf $(BINUTILS_BUILD) $(GCC_BUILD) build/* dist/* image/boot/*.bin
+
